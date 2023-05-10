@@ -9,7 +9,7 @@
   </head>
   <body>
     <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=400 height=711></canvas>
+      <canvas id="unity-canvas" width=500 height=888></canvas>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
@@ -89,22 +89,25 @@
         // performance, uncomment the following line:
         // config.devicePixelRatio = 1;
 
-        unityShowBanner('WebGL builds are not supported on mobile devices.');
+        //unityShowBanner('WebGL builds are not supported on mobile devices.');
       } else {
         // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
 
-        canvas.style.width = "400px";
-        canvas.style.height = "711px";
+        canvas.style.width = "500px";
+        canvas.style.height = "888px";
       }
 
       loadingBar.style.display = "block";
 
       var script = document.createElement("script");
+      var GameInstance = null;
+
       script.src = loaderUrl;
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
         }).then((unityInstance) => {
+          GameInstance = unityInstance;
           loadingBar.style.display = "none";
           fullscreenButton.onclick = () => {
             unityInstance.SetFullscreen(1);
@@ -114,14 +117,38 @@
         });
       };
       document.body.appendChild(script);
-      
-      window.CustomFunction = function()
-      { 
-        window.close();
+
+      window.CustomFunction = () => 
+      {
+        console.log("Custom function call");
       };
+
+      var scoreToSend = 0;
+      var dataFromReact = "";
+
+      //index to react
+      window.SendScore = (scoreData) => 
+      {
+        const jsonData = JSON.stringify(scoreData);
+        console.log("Send score data : " + jsonData);
+        //window.parent.postMessage({type: 'message', data: jsonData}, '*');
+        window.ReactNativeWebView.postMessage(jsonData);
+      };
+
+      window.FetchData = () => 
+      {
+          GameInstance.SendMessage('WebToUnity', 'ReceiveData', dataFromReact);
+      };
+
+
+      //react to index
+      console.log("Listen to React");
+      window.addEventListener("message", message =>
+      {
+          dataFromReact = JSON.stringify(message.data);
+          console.log("Data from react : " + dataFromReact);
+      });
+
     </script>
-    <!-- <script type="text/javascript">
-      window.CustomFunction = function(){ window.close(); };
-    </script> -->
   </body>
 </html>
