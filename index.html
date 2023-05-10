@@ -104,7 +104,7 @@
 
       script.src = loaderUrl;
       script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
+          createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
         }).then((unityInstance) => {
           GameInstance = unityInstance;
@@ -116,6 +116,7 @@
           alert(message);
         });
       };
+
       document.body.appendChild(script);
 
       window.CustomFunction = () => 
@@ -148,6 +149,27 @@
           dataFromReact = JSON.stringify(message.data);
           console.log("Data from react : " + dataFromReact);
       });
+
+      //fix can't load unity when refresh
+      (function() {
+          var delegate = window.indexedDB.open;
+
+          window.indexedDB.open = function(databaseName) {
+              var orgRequest = delegate.call(this, databaseName);
+
+              var fakeRequest = {};
+
+              orgRequest.onsuccess = function(e) {
+                  fakeRequest.result = orgRequest.result;
+                  setTimeout(function() {
+                      fakeRequest.onsuccess(e);
+                  }, 5000);
+              };
+
+              return fakeRequest;
+          };
+      })();
+      
 
     </script>
   </body>
