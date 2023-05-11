@@ -136,18 +136,13 @@
         window.ReactNativeWebView.postMessage(jsonData);
       };
 
-      window.FetchData = () => 
-      {
-          GameInstance.SendMessage('WebToUnity', 'ReceiveData', dataFromReact);
-      };
-
-
       //react to index
       console.log("Listen to React");
       window.addEventListener("message", message =>
       {
           dataFromReact = JSON.stringify(message.data);
           console.log("Data from react : " + dataFromReact);
+          GameInstance.SendMessage('WebToUnity', 'ReceiveData', dataFromReact);
       });
 
       //fix can't load unity when refresh
