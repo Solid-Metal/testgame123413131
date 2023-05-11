@@ -140,9 +140,20 @@
       console.log("Listen to React");
       window.addEventListener("message", message =>
       {
-          dataFromReact = JSON.stringify(message.data);
+        if (typeof message.data === 'string' || message.data instanceof String)
+        {
+          dataFromReact = message.data;
+          console.log("Data is string");
           console.log("Data from react : " + dataFromReact);
-          GameInstance.SendMessage('WebToUnity', 'ReceiveData', dataFromReact);
+        }
+        else
+        {
+          dataFromReact = JSON.stringify(message.data);
+          console.log("Data is object");
+          console.log("Data from react : " + dataFromReact);
+        }
+
+        GameInstance.SendMessage('WebToUnity', 'ReceiveData', dataFromReact);
       });
 
       //fix can't load unity when refresh
@@ -165,7 +176,6 @@
           };
       })();
       
-
     </script>
   </body>
 </html>
