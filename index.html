@@ -136,30 +136,23 @@
         window.ReactNativeWebView.postMessage(jsonData);
       };
 
+      console.log("Event based on OS");
+      if (/Android/i.test(navigator.userAgent))
+      {
+          console.log("This is android");
+      }
+      else if (/iPhone|iPad|iPod/i.test(navigator.userAgent))
+      {
+          console.log("This is IOS");
+      }
+      else
+      {
+          console.log("This is not android or IOS");
+      }
+
       //react to index
       console.log("Listen to React");
-
-      //fix can't load unity when refresh
-      (function() {
-          var delegate = window.indexedDB.open;
-
-          window.indexedDB.open = function(databaseName) {
-              var orgRequest = delegate.call(this, databaseName);
-
-              var fakeRequest = {};
-
-              orgRequest.onsuccess = function(e) {
-                  fakeRequest.result = orgRequest.result;
-                  setTimeout(function() {
-                      fakeRequest.onsuccess(e);
-                  }, 5000);
-              };
-
-              return fakeRequest;
-          };
-      })();
-
-      console.log("Event based on OS");
+      
       if (/Android/i.test(navigator.userAgent))
       {
           document.addEventListener("message", message =>
@@ -201,18 +194,26 @@
           });
       }
 
-      if (/Android/i.test(navigator.userAgent))
-      {
-          console.log("This is android");
-      }
-      else if (/iPhone|iPad|iPod/i.test(navigator.userAgent))
-      {
-          console.log("This is IOS");
-      }
-      else
-      {
-        console.log("This is not android or IOS");
-      }
+      //fix can't load unity when refresh
+      (function() {
+          var delegate = window.indexedDB.open;
+
+          window.indexedDB.open = function(databaseName) {
+              var orgRequest = delegate.call(this, databaseName);
+
+              var fakeRequest = {};
+
+              orgRequest.onsuccess = function(e) {
+                  fakeRequest.result = orgRequest.result;
+                  setTimeout(function() {
+                      fakeRequest.onsuccess(e);
+                  }, 5000);
+              };
+
+              return fakeRequest;
+          };
+      })();
+
       
     </script>
   </body>
