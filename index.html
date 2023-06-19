@@ -122,76 +122,58 @@
       window.CustomFunction = () => 
       {
         console.log("Custom function call");
-        window.parent.postMessage(JSON.stringify({ points: 50, live: 100}));
+        window.parent.postMessage(JSON.stringify({ points: 50, live: 100 }));
       };
 
       var scoreToSend = 0;
       var dataFromReact = "";
 
-      //index to react
       window.SendScore = (scoreData) => 
       {
         const jsonData = JSON.stringify(scoreData);
         console.log("Send score data : " + jsonData);
-        window.ReactNativeWebView.postMessage(jsonData);
+
+        if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent))
+        {
+            window.ReactNativeWebView.postMessage(jsonData);
+        }
+        else
+        {
+            window.parent.postMessage(jsonData);
+        }
       };
 
-      console.log("Event based on OS");
-      if (/Android/i.test(navigator.userAgent))
-      {
-          console.log("This is android");
-      }
-      else if (/iPhone|iPad|iPod/i.test(navigator.userAgent))
-      {
-          console.log("This is IOS");
-      }
-      else
-      {
-          console.log("This is not android or IOS");
-      }
+      ListenToReact();
 
-      //react to index
-      console.log("Listen to React");
+      function ListenToReact()
+      {
+          console.log("Listen to React");
+          if (/Android/i.test(navigator.userAgent))
+          {
+              document.addEventListener("message", ReceiveMessage);
+          }
+          else
+          {
+              window.addEventListener("message", ReceiveMessage);
+          }
+      }
       
-      if (/Android/i.test(navigator.userAgent))
+      function ReceiveMessage(message)
       {
-          document.addEventListener("message", message =>
+          if (typeof message.data === 'string' || message.data instanceof String)
           {
-            if (typeof message.data === 'string' || message.data instanceof String)
-            {
-              dataFromReact = message.data;
-              console.log("Data is string");
-              console.log("Data from react : " + dataFromReact);
-            }
-            else
-            {
-              dataFromReact = JSON.stringify(message.data);
-              console.log("Data is object");
-              console.log("Data from react : " + dataFromReact);
-            }
-
-            GameInstance.SendMessage('WebToUnity', 'ReceiveData', dataFromReact);
-          });
-      }
-      else
-      {
-          window.addEventListener("message", message =>
+            dataFromReact = message.data;
+            console.log("Data is string");
+            console.log("Data from react : " + dataFromReact);
+          }
+          else
           {
-            if (typeof message.data === 'string' || message.data instanceof String)
-            {
-              dataFromReact = message.data;
-              console.log("Data is string");
-              console.log("Data from react : " + dataFromReact);
-            }
-            else
-            {
-              dataFromReact = JSON.stringify(message.data);
-              console.log("Data is object");
-              console.log("Data from react : " + dataFromReact);
-            }
+            dataFromReact = JSON.stringify(message.data);
+            console.log("Data is object");
+            console.log("Data from react : " + dataFromReact);
+          }
 
-            GameInstance.SendMessage('WebToUnity', 'ReceiveData', dataFromReact);
-          });
+          GameInstance.SendMessage('WebToUnity', 'ReceiveData', dataFromReact);
       }
 
       //fix can't load unity when refresh
